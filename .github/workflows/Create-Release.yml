@@ -22,14 +22,8 @@ jobs:
         id: generate_tag
         run: |
           BASE_TAG="v$(date +'%Y-%m-%d')"
-          TAG=$BASE_TAG
-          COUNTER=2
-
-          # Проверяем существующий тег
-          while gh release view "$TAG" >/dev/null 2>&1; do
-            TAG="${BASE_TAG}r${COUNTER}"
-            COUNTER=$((COUNTER + 1))
-          done
+          RANDOM_NUM=$(shuf -i 10000-99999 -n 1) # Генерация случайного числа
+          TAG="${BASE_TAG}-${RANDOM_NUM}"
 
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "Generated tag: $TAG"
@@ -39,12 +33,13 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ env.TAG }}
-          release_name: "Release ${{ env.TAG }}"
+          release_name: Release ${{ env.TAG }}
           body: "Автоматический релиз ${{ env.TAG }}."
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
