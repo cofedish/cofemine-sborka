@@ -22,35 +22,40 @@ jobs:
         id: generate_tag
         run: |
           BASE_TAG="v$(date +'%Y-%m-%d')"
-          RANDOM_NUM=$(shuf -i 10000-99999 -n 1) # Генерация случайного числа
-          TAG="${BASE_TAG}-${RANDOM_NUM}"
+          UNIQUE_SUFFIX=$(date +%s) # Используем уникальный числовой идентификатор
+          TAG="${BASE_TAG}-${UNIQUE_SUFFIX}"
 
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "Generated tag: $TAG"
 
-      - name: Create or Update Release
-        id: create_release
+      - name: Create ZIP Archive
+        run: |
+          zip -r cofemine-sborka.zip ./*
+          ls -lh cofemine-sborka.zip # Вывод информации о созданном архиве
+
+      - name: Create Release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ env.TAG }}
-          release_name: Release ${{ env.TAG }}
+          release_name: "Release ${{ env.TAG }}"
           body: "Автоматический релиз ${{ env.TAG }}."
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: cofemine-sborka.zip
           asset_name: cofemine-sborka.zip
           asset_content_type: application/zip
 
       - name: Update 'latest' Tag
         run: |
+          # Обновляем или создаем тег latest
+          git fetch origin
           git tag -f latest ${{ env.TAG }}
           git push origin --force latest
         env:
