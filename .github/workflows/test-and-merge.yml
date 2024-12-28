@@ -47,17 +47,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Клонируем полный репозиторий, включая все ветки
 
       - name: Configure Git
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      - name: Merge dev into main
+      - name: Push changes from dev to main
         run: |
-          git checkout main
-          git rm --cached forge-installer.jar .github/workflows/test-and-merge.yml || true
-          git merge dev --no-ff -X theirs
-          git push origin main
+          git checkout dev
+          git checkout -b temp-main
+          git rm -r --cached .github/workflows/ # Удалить workflow-файлы из индекса
+          git commit -m "Remove workflows before pushing to main" || echo "No changes to commit"
+          git push origin temp-main:main --force # Перезаписываем main новой версией
+
