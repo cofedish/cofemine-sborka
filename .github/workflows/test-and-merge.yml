@@ -16,9 +16,9 @@ jobs:
         
       - name: Start Forge Test Server
         run: |
-          docker run --name test-server \
-            -v ${{ github.workspace }}/mods:/data/mods \
-            -v ${{ github.workspace }}/config:/data/config \
+          docker run -d --name test-server \
+            -v $PWD/mods:/data/mods \
+            -v $PWD/config:/data/config \
             -e EULA=TRUE \
             -e TYPE=FORGE \
             -e VERSION=1.20.1 \
