@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - client
 
 jobs:
   create-server-release:
