@@ -128,9 +128,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Update 'latest-client' Tag
+        working-directory: client-repo
         run: |
           git fetch origin
           git tag -f latest-client ${{ env.TAG_CLIENT }}
           git push origin --force latest-client
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+
