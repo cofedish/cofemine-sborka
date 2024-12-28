@@ -24,7 +24,7 @@ jobs:
             -e FORGEVERSION=47.1.0 \
             -p 25566:25565 \
             itzg/minecraft-server:latest
-          sleep 120
+          sleep 360
         
       - name: Check Docker Logs
         run: docker logs test-server
