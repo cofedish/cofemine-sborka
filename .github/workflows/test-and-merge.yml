@@ -58,5 +58,6 @@ jobs:
       - name: Merge dev into main
         run: |
           git checkout main
+          git rm --cached forge-installer.jar .github/workflows/test-and-merge.yml || true
           git merge dev --no-ff -X theirs
           git push origin main
