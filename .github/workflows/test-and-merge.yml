@@ -27,8 +27,9 @@ jobs:
             itzg/minecraft-server:latest
           sleep 120
 
-
-
+      - name: Check Config Directory
+        run: docker exec test-server ls -la /data/config
+        
       - name: Check Docker Logs
         run: docker logs test-server
       
