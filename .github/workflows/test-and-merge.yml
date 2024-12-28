@@ -22,6 +22,7 @@ jobs:
             -e TYPE=FORGE \
             -e VERSION=1.20.1 \
             -e FORGEVERSION=47.3.22 \
+            -e JVM_OPTS="-Xmx6G -Xms1G"
             -p 25566:25565 \
             itzg/minecraft-server:latest
           sleep 900
