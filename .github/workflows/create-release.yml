@@ -105,15 +105,24 @@ jobs:
           mv cofemine-client.zip ../
           cd ..
           ls -lh cofemine-client.zip
+          
+      - name: Generate Unique Client Tag
+        id: generate_client_tag
+        run: |
+          BASE_TAG="client-v$(date +'%Y-%m-%d')"
+          UNIQUE_SUFFIX=$(date +%s)
+          TAG_CLIENT="${BASE_TAG}-${UNIQUE_SUFFIX}"
+          echo "TAG_CLIENT=$TAG_CLIENT" >> $GITHUB_ENV
+          echo "Generated client tag: $TAG_CLIENT"
 
       # Шаг 4: Создание клиентского релиза
       - name: Create Client Release
         id: create_client_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ env.TAG }}
-          release_name: "Client Release ${{ env.TAG }}"
-          body: "Клиентский релиз ${{ env.TAG }}."
+          tag_name: ${{ env.TAG_CLIENT }}
+          release_name: "Client Release ${{ env.TAG_CLIENT }}"
+          body: "Автоматический клиентский релиз ${{ env.TAG_CLIENT }}."
           draft: false
           prerelease: false
         env:
