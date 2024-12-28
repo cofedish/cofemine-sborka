@@ -1,0 +1,61 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
+      - name: Generate Unique Tag
+        id: generate_tag
+        run: |
+          BASE_TAG="v$(date +'%Y-%m-%d')"
+          UNIQUE_SUFFIX=$(date +%s)
+          TAG="${BASE_TAG}-${UNIQUE_SUFFIX}"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "Generated tag: $TAG"
+      - name: Create ZIP Archive
+        run: |
+          zip -r cofemine-sborka.zip ./*
+          ls -lh cofemine-sborka.zip
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.TAG }}
+          release_name: "Release ${{ env.TAG }}"
+          body: "Автоматический релиз ${{ env.TAG }}."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: cofemine-sborka.zip
+          asset_name: cofemine-sborka.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+
+      - name: Update 'latest' Tag
+        run: |
+          git fetch origin
+          git tag -f latest ${{ env.TAG }}
+          git push origin --force latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
