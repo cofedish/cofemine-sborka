@@ -148,5 +148,6 @@ jobs:
           # Создаем новый тег
           git tag latest-client
           git push origin latest-client
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
 
