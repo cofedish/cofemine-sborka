@@ -130,6 +130,7 @@ jobs:
 
       - name: Update 'latest-client' Tag for Client
         run: |
+          cd ${{ github.workspace }}
           gh release create latest-client \
             cofemine-client.zip \
             --title "Latest Client Release" \
