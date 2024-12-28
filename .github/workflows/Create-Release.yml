@@ -22,7 +22,7 @@ jobs:
         id: generate_tag
         run: |
           BASE_TAG="v$(date +'%Y-%m-%d')"
-          UNIQUE_SUFFIX=$(date +%s) # Используем уникальный числовой идентификатор
+          UNIQUE_SUFFIX=$(date +%s)
           TAG="${BASE_TAG}-${UNIQUE_SUFFIX}"
 
           echo "TAG=$TAG" >> $GITHUB_ENV
@@ -31,9 +31,10 @@ jobs:
       - name: Create ZIP Archive
         run: |
           zip -r cofemine-sborka.zip ./*
-          ls -lh cofemine-sborka.zip # Вывод информации о созданном архиве
+          ls -lh cofemine-sborka.zip
 
       - name: Create Release
+        id: create_release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ env.TAG }}
@@ -47,14 +48,13 @@ jobs:
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: cofemine-sborka.zip
           asset_name: cofemine-sborka.zip
           asset_content_type: application/zip
 
       - name: Update 'latest' Tag
         run: |
-          # Обновляем или создаем тег latest
           git fetch origin
           git tag -f latest ${{ env.TAG }}
           git push origin --force latest
