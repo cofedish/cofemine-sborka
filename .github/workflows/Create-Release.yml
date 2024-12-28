@@ -23,8 +23,8 @@ jobs:
       - name: Create Unique Release
         uses: actions/create-release@v1
         with:
-          tag_name: "v$(date +'%Y%m%d%H%M')" # Генерирует уникальный тег
-          release_name: "Release $(date +'%Y-%m-%d %H:%M:%S')"
+          tag_name: "v$(date)" # Генерирует уникальный тег
+          release_name: "Release $(date)"
           body: "Автоматический релиз."
           draft: false
           prerelease: false
