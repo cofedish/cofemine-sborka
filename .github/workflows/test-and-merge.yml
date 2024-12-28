@@ -22,6 +22,10 @@ jobs:
             itzg/minecraft-server:latest
           sleep 60  # Ждём, пока сервер полностью запустится
 
+      - name: Install mcstatus
+        run: |
+          pip install mcstatus
+
       - name: Verify Server is Running
         run: |
           mcstatus localhost:25566 ping || exit 1
