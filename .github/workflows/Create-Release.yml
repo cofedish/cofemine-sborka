@@ -23,14 +23,13 @@ jobs:
       - name: Create Unique Release
         uses: actions/create-release@v1
         with:
-          tag_name: "v$(date +'%Y%m%d%H%M')"
+          tag_name: "v$(date +'%Y%m%d%H%M')" # Генерирует уникальный тег
           release_name: "Release $(date +'%Y-%m-%d %H:%M:%S')"
-          body: "Этот релиз был автоматически создан каким то кренделем."
+          body: "Автоматический релиз."
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       # Шаг 4: Обновление тега "latest"
       - name: Update 'latest' Tag
