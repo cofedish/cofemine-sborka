@@ -10,27 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref_name == 'main'
     steps:
-      # Шаг 1: Клонирование репозитория
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Шаг 2: Установка GitHub CLI
       - name: Install GitHub CLI
         run: |
           sudo apt update
           sudo apt install gh -y
 
-      # Шаг 3: Генерация уникального тега
-      - name: Generate Unique Tag
-        id: generate_tag
+      - name: Generate Unique Server Tag
+        id: generate_server_tag
         run: |
-          BASE_TAG="v$(date +'%Y-%m-%d')"
+          BASE_TAG="server-v$(date +'%Y-%m-%d')"
           UNIQUE_SUFFIX=$(date +%s)
           TAG="${BASE_TAG}-${UNIQUE_SUFFIX}"
           echo "TAG=$TAG" >> $GITHUB_ENV
-          echo "Generated tag: $TAG"
+          echo "Generated server tag: $TAG"
 
-      # Шаг 4: Создание ZIP-архива серверной сборки
       - name: Create Server ZIP Archive
         run: |
           mkdir -p server-build
@@ -42,7 +38,6 @@ jobs:
           cd ..
           ls -lh cofemine-server.zip
 
-      # Шаг 5: Создание серверного релиза
       - name: Create Server Release
         id: create_server_release
         uses: actions/create-release@v1
@@ -55,7 +50,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      # Шаг 6: Загрузка серверного архива в релиз
       - name: Upload Server Release Asset
         uses: actions/upload-release-asset@v1
         with:
@@ -66,8 +60,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      # Шаг 7: Обновление тега 'latest' для серверного релиза
-      - name: Update 'latest' Tag for Server
+      - name: Update 'latest-server' Tag
         run: |
           git fetch origin
           git tag -f latest-server ${{ env.TAG }}
@@ -79,21 +72,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: create-server-release
     steps:
-      # Шаг 1: Клонирование ветки с клиентскими модами
       - name: Checkout Client Branch
         uses: actions/checkout@v2
         with:
           ref: client
           path: client-repo
 
-      # Шаг 2: Клонирование ветки с серверными модами
       - name: Checkout Server Branch
         uses: actions/checkout@v2
         with:
           ref: main
           path: server-repo
 
-      # Шаг 3: Объединение серверных и клиентских файлов
       - name: Merge Files for Client Build
         run: |
           mkdir -p client-build
@@ -105,7 +95,7 @@ jobs:
           mv cofemine-client.zip ../
           cd ..
           ls -lh cofemine-client.zip
-          
+
       - name: Generate Unique Client Tag
         id: generate_client_tag
         run: |
@@ -115,7 +105,6 @@ jobs:
           echo "TAG_CLIENT=$TAG_CLIENT" >> $GITHUB_ENV
           echo "Generated client tag: $TAG_CLIENT"
 
-      # Шаг 4: Создание клиентского релиза
       - name: Create Client Release
         id: create_client_release
         uses: actions/create-release@v1
@@ -128,7 +117,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      # Шаг 5: Загрузка клиентского архива в релиз
       - name: Upload Client Release Asset
         uses: actions/upload-release-asset@v1
         with:
@@ -139,13 +127,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      # Шаг 6: Обновление тега 'latest' для клиентского релиза
-      - name: Update 'latest' Tag for Client
+      - name: Update 'latest-client' Tag
         run: |
-          cd client-repo  # Переход в директорию клиентской ветки
           git fetch origin
           git tag -f latest-client ${{ env.TAG_CLIENT }}
           git push origin --force latest-client
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
-
