@@ -61,10 +61,13 @@ jobs:
           # Копируем папку mods из ветки dev
           git checkout dev -- mods
   
-          # Добавляем и коммитим изменения
+          # Добавляем изменения
           git add mods
-          git commit -m "Sync mods folder from dev to main"
+  
+          # Всегда создаём коммит, даже если изменений нет
+          git commit --allow-empty -m "Sync mods folder from dev to main"
   
           # Пушим изменения в ветку main
           git push origin main
+
 
