@@ -142,8 +142,10 @@ jobs:
       # Шаг 6: Обновление тега 'latest' для клиентского релиза
       - name: Update 'latest' Tag for Client
         run: |
+          cd client-repo  # Переход в директорию клиентской ветки
           git fetch origin
           git tag -f latest-client ${{ env.TAG_CLIENT }}
           git push origin --force latest-client
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+
