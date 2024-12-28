@@ -1,4 +1,4 @@
-name: Create Releases
+name: Create Server Release
 
 on:
   push:
@@ -10,14 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref_name == 'main'
     steps:
+      # Шаг 1: Клонирование репозитория
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Шаг 2: Установка GitHub CLI
       - name: Install GitHub CLI
         run: |
           sudo apt update
           sudo apt install gh -y
 
+      # Шаг 3: Генерация уникального тега
       - name: Generate Unique Server Tag
         id: generate_server_tag
         run: |
@@ -27,6 +30,7 @@ jobs:
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "Generated server tag: $TAG"
 
+      # Шаг 4: Создание ZIP-архива серверной сборки
       - name: Create Server ZIP Archive
         run: |
           mkdir -p server-build
@@ -38,6 +42,7 @@ jobs:
           cd ..
           ls -lh cofemine-server.zip
 
+      # Шаг 5: Создание серверного релиза
       - name: Create Server Release
         id: create_server_release
         uses: actions/create-release@v1
@@ -50,6 +55,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
+      # Шаг 6: Загрузка серверного архива в релиз
       - name: Upload Server Release Asset
         uses: actions/upload-release-asset@v1
         with:
@@ -60,94 +66,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      - name: Update 'latest-server' Tag for Server
+      # Шаг 7: Обновление тега 'latest' для серверного релиза
+      - name: Update 'latest' Tag for Server
         run: |
-          gh release delete latest-server --yes || true
-          gh release create latest-server \
+          gh release delete latest --yes || true
+          gh release create latest \
             cofemine-server.zip \
             --title "Latest Server Release" \
             --notes "This is the latest server release." --latest
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
-
-  create-client-release:
-    runs-on: ubuntu-latest
-    needs: create-server-release
-    steps:
-      - name: Checkout Client Branch
-        uses: actions/checkout@v2
-        with:
-          ref: client
-          path: client-repo
-
-      - name: Checkout Server Branch
-        uses: actions/checkout@v2
-        with:
-          ref: main
-          path: server-repo
-
-      - name: Merge Files for Client Build
-        run: |
-          mkdir -p client-build
-          cp -r client-repo/mods client-build/
-          cp -r client-repo/resourcepacks client-build/
-          cp server-repo/forge-installer.jar client-build/
-          cd client-build
-          zip -r cofemine-client.zip .
-          mv cofemine-client.zip ../
-          cd ..
-          ls -lh cofemine-client.zip
-          # Проверяем, существует ли файл
-          if [ ! -f cofemine-client.zip ]; then
-            echo "Error: cofemine-client.zip was not created!"
-            exit 1
-          fi
-
-
-      - name: Generate Unique Client Tag
-        id: generate_client_tag
-        run: |
-          BASE_TAG="client-v$(date +'%Y-%m-%d')"
-          UNIQUE_SUFFIX=$(date +%s)
-          TAG_CLIENT="${BASE_TAG}-${UNIQUE_SUFFIX}"
-          echo "TAG_CLIENT=$TAG_CLIENT" >> $GITHUB_ENV
-          echo "Generated client tag: $TAG_CLIENT"
-
-      - name: Create Client Release
-        id: create_client_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.TAG_CLIENT }}
-          release_name: "Client Release ${{ env.TAG_CLIENT }}"
-          body: "Автоматический клиентский релиз ${{ env.TAG_CLIENT }}."
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-
-      - name: Upload Client Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_client_release.outputs.upload_url }}
-          asset_path: cofemine-client.zip
-          asset_name: cofemine-client.zip
-          asset_content_type: application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-
-      - name: Update 'latest-client' Tag for Client
-        run: |
-          # Убедимся, что находимся в рабочем каталоге
-          cd client-build
-          git init
-          git remote add origin https://github.com/cofedish/cofemine-sborka.git
-          git fetch origin
-          # Удаляем старый тег, если он существует
-          git tag -d latest-client || true
-          git push origin :refs/tags/latest-client || true
-          # Создаем новый тег
-          git tag latest-client
-          git push origin latest-client
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-
