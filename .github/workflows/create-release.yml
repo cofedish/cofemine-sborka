@@ -60,11 +60,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      - name: Update 'latest-server' Tag
+      - name: Update 'latest-server' Tag for Server
         run: |
-          git fetch origin
-          git tag -f latest-server ${{ env.TAG }}
-          git push origin --force latest-server
+          gh release create latest-server \
+            cofemine-server.zip \
+            --title "Latest Server Release" \
+            --notes "This is the latest server release." --latest
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
@@ -127,12 +128,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      - name: Update 'latest-client' Tag
-        working-directory: client-repo
+      - name: Update 'latest-client' Tag for Client
         run: |
-          git fetch origin
-          git tag -f latest-client ${{ env.TAG_CLIENT }}
-          git push origin --force latest-client
+          gh release create latest-client \
+            cofemine-client.zip \
+            --title "Latest Client Release" \
+            --notes "This is the latest client release." --latest
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
