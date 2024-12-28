@@ -62,6 +62,7 @@ jobs:
 
       - name: Update 'latest-server' Tag for Server
         run: |
+          gh release delete latest-server --yes || true
           gh release create latest-server \
             cofemine-server.zip \
             --title "Latest Server Release" \
@@ -131,6 +132,7 @@ jobs:
       - name: Update 'latest-client' Tag for Client
         run: |
           cd ${{ github.workspace }}
+          gh release delete latest-client --yes || true
           gh release create latest-client \
             cofemine-client.zip \
             --title "Latest Client Release" \
