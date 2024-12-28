@@ -1,22 +1,27 @@
-name: Create Release
+name: Create Releases
 
 on:
   push:
     branches:
       - main
+      - client
 
 jobs:
-  release:
+  create-server-release:
     runs-on: ubuntu-latest
-
+    if: github.ref_name == 'main'
     steps:
+      # Шаг 1: Клонирование репозитория
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Шаг 2: Установка GitHub CLI
       - name: Install GitHub CLI
         run: |
           sudo apt update
           sudo apt install gh -y
+
+      # Шаг 3: Генерация уникального тега
       - name: Generate Unique Tag
         id: generate_tag
         run: |
@@ -25,37 +30,112 @@ jobs:
           TAG="${BASE_TAG}-${UNIQUE_SUFFIX}"
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "Generated tag: $TAG"
-      - name: Create ZIP Archive
+
+      # Шаг 4: Создание ZIP-архива серверной сборки
+      - name: Create Server ZIP Archive
         run: |
-          zip -r cofemine-sborka.zip ./*
-          ls -lh cofemine-sborka.zip
-      - name: Create Release
-        id: create_release
+          mkdir -p server-build
+          cp -r mods server-build/
+          cp forge-installer.jar server-build/
+          cd server-build
+          zip -r cofemine-server.zip .
+          mv cofemine-server.zip ../
+          cd ..
+          ls -lh cofemine-server.zip
+
+      # Шаг 5: Создание серверного релиза
+      - name: Create Server Release
+        id: create_server_release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ env.TAG }}
-          release_name: "Release ${{ env.TAG }}"
-          body: "Автоматический релиз ${{ env.TAG }}."
+          release_name: "Server Release ${{ env.TAG }}"
+          body: "Серверный релиз ${{ env.TAG }}."
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      - name: Upload Release Asset
+      # Шаг 6: Загрузка серверного архива в релиз
+      - name: Upload Server Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: cofemine-sborka.zip
-          asset_name: cofemine-sborka.zip
+          upload_url: ${{ steps.create_server_release.outputs.upload_url }}
+          asset_path: cofemine-server.zip
+          asset_name: cofemine-server.zip
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
-
-      - name: Update 'latest' Tag
+      # Шаг 7: Обновление тега 'latest' для серверного релиза
+      - name: Update 'latest' Tag for Server
         run: |
           git fetch origin
-          git tag -f latest ${{ env.TAG }}
-          git push origin --force latest
+          git tag -f latest-server ${{ env.TAG }}
+          git push origin --force latest-server
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+  create-client-release:
+    runs-on: ubuntu-latest
+    needs: create-server-release
+    steps:
+      # Шаг 1: Клонирование ветки с клиентскими модами
+      - name: Checkout Client Branch
+        uses: actions/checkout@v2
+        with:
+          ref: client
+          path: client-repo
+
+      # Шаг 2: Клонирование ветки с серверными модами
+      - name: Checkout Server Branch
+        uses: actions/checkout@v2
+        with:
+          ref: main
+          path: server-repo
+
+      # Шаг 3: Объединение серверных и клиентских файлов
+      - name: Merge Files for Client Build
+        run: |
+          mkdir -p client-build
+          cp -r client-repo/mods client-build/
+          cp -r client-repo/resourcepacks client-build/
+          cp server-repo/forge-installer.jar client-build/
+          cd client-build
+          zip -r cofemine-client.zip .
+          mv cofemine-client.zip ../
+          cd ..
+          ls -lh cofemine-client.zip
+
+      # Шаг 4: Создание клиентского релиза
+      - name: Create Client Release
+        id: create_client_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.TAG }}
+          release_name: "Client Release ${{ env.TAG }}"
+          body: "Клиентский релиз ${{ env.TAG }}."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      # Шаг 5: Загрузка клиентского архива в релиз
+      - name: Upload Client Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_client_release.outputs.upload_url }}
+          asset_path: cofemine-client.zip
+          asset_name: cofemine-client.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      # Шаг 6: Обновление тега 'latest' для клиентского релиза
+      - name: Update 'latest' Tag for Client
+        run: |
+          git fetch origin
+          git tag -f latest-client ${{ env.TAG }}
+          git push origin --force latest-client
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
