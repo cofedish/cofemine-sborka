@@ -97,6 +97,12 @@ jobs:
           mv cofemine-client.zip ../
           cd ..
           ls -lh cofemine-client.zip
+          # Проверяем, существует ли файл
+          if [ ! -f cofemine-client.zip ]; then
+            echo "Error: cofemine-client.zip was not created!"
+            exit 1
+          fi
+
 
       - name: Generate Unique Client Tag
         id: generate_client_tag
