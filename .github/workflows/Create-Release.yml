@@ -25,7 +25,7 @@ jobs:
           TAG=$BASE_TAG
           COUNTER=2
 
-          # Check if the tag already exists
+          # Проверка на существующий релиз
           while gh release view "$TAG" >/dev/null 2>&1; do
             TAG="${BASE_TAG}r${COUNTER}"
             COUNTER=$((COUNTER + 1))
@@ -56,7 +56,6 @@ jobs:
 
       - name: Update 'latest' Tag
         run: |
-          # Update or create the 'latest' tag
           git tag -f latest ${{ env.TAG }}
           git push origin --force latest
         env:
