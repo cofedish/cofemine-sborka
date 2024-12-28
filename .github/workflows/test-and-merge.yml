@@ -23,8 +23,7 @@ jobs:
           sleep 60  # Ждём, пока сервер полностью запустится
 
       - name: Verify Server is Running
-        run: |
-          curl --fail http://localhost:25566 || exit 1
+        run: curl --fail http://127.0.0.1:25566 || exit 1
 
   merge:
     needs: test
