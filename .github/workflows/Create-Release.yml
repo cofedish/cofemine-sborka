@@ -28,7 +28,9 @@ jobs:
           body: "Этот релиз был автоматически создан."
           draft: false
           prerelease: false
-          token: ${{ secrets.PAT }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       # Шаг 4: Обновление тега "latest"
       - name: Update 'latest' Tag
