@@ -131,12 +131,16 @@ jobs:
 
       - name: Update 'latest-client' Tag for Client
         run: |
-          cd client-repo
-          gh release delete latest-client --yes || true
-          gh release create latest-client \
-            cofemine-client.zip \
-            --title "Latest Client Release" \
-            --notes "This is the latest client release." --latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          # Убедимся, что находимся в рабочем каталоге
+          cd client-build
+          git init
+          git remote add origin https://github.com/cofedish/cofemine-sborka.git
+          git fetch origin
+          # Удаляем старый тег, если он существует
+          git tag -d latest-client || true
+          git push origin :refs/tags/latest-client || true
+          # Создаем новый тег
+          git tag latest-client
+          git push origin latest-client
+
 
