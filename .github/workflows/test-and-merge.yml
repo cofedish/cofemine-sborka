@@ -18,7 +18,6 @@ jobs:
         run: |
           docker run -d --name test-server \
             -v $PWD/mods:/data/mods \
-            -v $PWD/config:/data/config \
             -e EULA=TRUE \
             -e TYPE=FORGE \
             -e VERSION=1.20.1 \
@@ -26,9 +25,6 @@ jobs:
             -p 25566:25565 \
             itzg/minecraft-server:latest
           sleep 120
-
-      - name: Check Config Directory
-        run: docker exec test-server ls -la /data/config
         
       - name: Check Docker Logs
         run: docker logs test-server
