@@ -16,16 +16,17 @@ jobs:
         
       - name: Start Forge Test Server
         run: |
-          docker run -d --name test-server \
+          docker run --name test-server \
             -v ${{ github.workspace }}/mods:/data/mods \
             -v ${{ github.workspace }}/config:/data/config \
             -e EULA=TRUE \
             -e TYPE=FORGE \
             -e VERSION=1.20.1 \
-            -e FORGEVERSION=47.1.0 \  # Укажите точную версию Forge
+            -e FORGEVERSION=47.1.0 \
             -p 25566:25565 \
             itzg/minecraft-server:latest
           sleep 120
+
 
 
       - name: Check Docker Logs
