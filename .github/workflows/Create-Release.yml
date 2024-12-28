@@ -25,7 +25,7 @@ jobs:
           TAG=$BASE_TAG
           COUNTER=2
 
-          # Проверка на существующий релиз
+          # Проверяем существующий тег
           while gh release view "$TAG" >/dev/null 2>&1; do
             TAG="${BASE_TAG}r${COUNTER}"
             COUNTER=$((COUNTER + 1))
