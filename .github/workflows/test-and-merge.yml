@@ -70,4 +70,24 @@ jobs:
           # Пушим изменения в ветку main
           git push origin main
 
+      - name: Sync mods to Client Repository
+        run: |
+          # Клонируем клиентский репозиторий
+          git clone https://github.com/cofedish/cofemine-sborka-client.git client-repo
+          cd client-repo
 
+          # Создаем итоговую папку mods
+          mkdir -p mods
+
+          # Копируем клиентские моды в mods
+          cp -r client-mods/* mods/ || true
+
+          # Копируем серверные моды из текущей репозитории в mods
+          cp -r ../mods/* mods/ || true
+
+          # Добавляем и коммитим изменения
+          git add mods
+          git commit --allow-empty -m "Update mods with latest server and client mods"
+
+          # Пушим изменения в клиентский репозиторий
+          git push origin main
