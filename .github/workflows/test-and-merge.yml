@@ -1,5 +1,5 @@
 name: Test and Merge
-
+# Lets fucking go
 on:
   push:
     branches:
