@@ -52,23 +52,31 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
   
-      - name: Sync mods folder from dev to main
+      - name: Sync mods folder to Main Branch
         run: |
-          # Переключаемся на ветку main
-          git fetch origin main
+          # Клонируем репозиторий и переключаемся на ветку main
+          git clone https://${{ secrets.PAT }}@github.com/cofedish/cofemine-sborka.git main-repo
+          cd main-repo
           git checkout main
-  
-          # Копируем папку mods из ветки dev
-          git checkout dev -- mods
-  
-          # Добавляем изменения
+      
+          # Создаем или обновляем папку mods
+          mkdir -p mods
+          # Копируем серверные моды из текущей репозитории в mods
+          cp -r ../mods/* mods/ || true
+      
+          # Проверяем статус и добавляем изменения
+          git status
           git add mods
-  
-          # Всегда создаём коммит, даже если изменений нет
-          git commit --allow-empty -m "Sync mods folder from dev to main"
-  
+          git commit --allow-empty -m "Update mods folder with latest changes"
+      
+          # Задаем URL для аутентификации с токеном
+          git remote set-url origin https://${{ secrets.PAT }}@github.com/cofedish/cofemine-sborka.git
+      
           # Пушим изменения в ветку main
           git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
           
       - name: Sync mods to Client Repository
         run: |
