@@ -36,6 +36,8 @@ jobs:
           mkdir -p server-build
           cp -r mods server-build/
           cp forge-installer.jar server-build/
+          cp ops.json
+          cd server.properties
           cd server-build
           zip -r cofemine-server.zip .
           mv cofemine-server.zip ../
