@@ -20,7 +20,7 @@ jobs:
           sudo apt update
           sudo apt install gh -y
 
-      # Шаг 3: Генерация уникального тега
+      # Шаг 3: Генерация уникального тега blya
       - name: Generate Unique Server Tag
         id: generate_server_tag
         run: |
