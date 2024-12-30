@@ -30,7 +30,7 @@ jobs:
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "Generated server tag: $TAG"
 
-      # Шаг 4: Создание ZIP-архива серверной сборки
+      # Шаг 4: Создание ZIP-архива серверной сборки blyat
       - name: Create Server ZIP Archive
         run: |
           mkdir -p server-build
