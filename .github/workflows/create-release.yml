@@ -44,7 +44,7 @@ jobs:
           cd ..
           ls -lh cofemine-server.zip
 
-      # Шаг 5: Создание серверного релиза
+      # Шаг 5: Создание серверного релиза skibidiiiii
       - name: Create Server Release
         id: create_server_release
         uses: actions/create-release@v1
