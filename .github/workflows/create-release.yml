@@ -37,7 +37,7 @@ jobs:
           cp -r mods server-build/
           cp forge-installer.jar server-build/
           cp ops.json server-build/
-          cd server.properties server-build/
+          cp server.properties server-build/
           cd server-build
           zip -r cofemine-server.zip .
           mv cofemine-server.zip ../
